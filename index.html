@@ -15,8 +15,9 @@
 *{box-sizing:border-box}body{margin:0;background:#faf9fc;color:var(--ink);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding-bottom:86px}
 header{padding:22px 18px 16px;background:linear-gradient(135deg,var(--lav),#f8edf1);border-radius:0 0 24px 24px}
 h1{font-size:25px;margin:0 0 4px}header p{margin:0;color:var(--muted);font-size:13px}
-main{padding:16px;max-width:720px;margin:auto}.tabs{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;overflow-x:auto;padding:7px 4px calc(7px + env(safe-area-inset-bottom));z-index:5}
-.tabs button{flex:1;min-width:64px;border:0;background:none;color:var(--muted);font-size:10px;padding:5px 2px}.tabs button span{display:block;font-size:19px;margin-bottom:2px}.tabs button.active{color:#765c9a;font-weight:700}
+main{padding:16px;max-width:720px;margin:auto}.tabs{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:7px 8px calc(7px + env(safe-area-inset-bottom));z-index:5;box-shadow:0 -4px 18px #40305008}
+.tabs button{flex:1;max-width:150px;border:0;background:none;color:var(--muted);font-size:11px;padding:5px 2px}.tabs button span{display:block;font-size:20px;margin-bottom:2px}.tabs button.active{color:#765c9a;font-weight:700}
+.more-menu{position:fixed;right:12px;bottom:calc(76px + env(safe-area-inset-bottom));z-index:6;background:#fff;border:1px solid var(--line);border-radius:16px;padding:8px;box-shadow:0 8px 30px #30203d20;min-width:190px}.more-menu button{display:block;width:100%;text-align:left;border:0;background:white;padding:12px;border-radius:10px;color:var(--ink);font:inherit}.more-menu button:active{background:var(--lav)}
 .panel{display:none}.panel.active{display:block}.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px;margin:0 0 12px;box-shadow:0 3px 12px #40305008}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.stat{border-radius:15px;padding:13px}.stat b{display:block;font-size:25px;margin-top:4px}.stat small{color:var(--muted)}
 .stat.lav{background:var(--lav)}.stat.mint{background:var(--mint)}.stat.pink{background:var(--pink)}.stat.blue{background:var(--blue)}
@@ -75,8 +76,9 @@ form .twocol{display:grid;grid-template-columns:1fr 1fr;gap:9px}.book{display:fl
 <section id="years" class="panel"><h2>Jaaroverzicht</h2><p class="note">Vul je historische totalen en leesdoelen in. Vanaf 2027 telt de app je gelezen boeken automatisch.</p><div id="yearList"></div></section>
 <section id="settings" class="panel"><h2>Gegevens & back-up</h2><div class="card"><h3>Bewaar je leesadministratie</h3><p class="note">Je gegevens worden lokaal op deze iPhone bewaard. Maak regelmatig een back-up, zeker als je van toestel verandert of Safari-gegevens wist.</p><div class="actions"><button class="primary" onclick="backup()">Back-up downloaden</button><button class="secondary" onclick="document.getElementById('restoreFile').click()">Back-up terugzetten</button><input id="restoreFile" type="file" accept="application/json" class="hidden"></div></div><div class="card"><h3>Installeren op iPhone</h3><p class="note">Open de app-link in Safari, tik op de deelknop en kies 'Zet op beginscherm'. Open de app daarna minstens één keer met internet. Daarna kan ze offline gebruikt worden.</p></div><div class="card"><h3>Gegevens wissen</h3><p class="note">Dit verwijdert alle boeken en instellingen die in deze app op dit toestel zijn opgeslagen.</p><button class="danger" onclick="wipe()">Wis alle appgegevens</button></div></section>
 </main>
-<nav class="tabs">
-<button class="active" data-tab="dashboard"><span>⌂</span>Home</button><button data-tab="read"><span>📖</span>Gelezen</button><button data-tab="tbr"><span>♡</span>TBR</button><button data-tab="current"><span>▤</span>Lezen</button><button data-tab="series"><span>▣</span>Series</button><button data-tab="years"><span>▥</span>Jaren</button><button data-tab="settings"><span>⚙</span>Meer</button>
+<div id="moreMenu" class="more-menu hidden" aria-label="Meer onderdelen"><button data-tab="series">▣ &nbsp; Mijn series</button><button data-tab="years">▥ &nbsp; Jaaroverzicht</button><button data-tab="settings">⚙ &nbsp; Gegevens & instellingen</button></div>
+<nav class="tabs" aria-label="Hoofdnavigatie">
+<button class="active" data-tab="dashboard"><span>⌂</span>Home</button><button data-tab="read"><span>📖</span>Gelezen</button><button data-tab="tbr"><span>♡</span>TBR</button><button data-tab="current"><span>▤</span>Lezen</button><button id="moreBtn" type="button"><span>•••</span>Meer</button>
 </nav>
 <script>
 const KEY='mijnLeesapp_v1';
@@ -110,7 +112,10 @@ function render(){
 }
 function setYear(y,k,v){db.years[y]=db.years[y]||{};db.years[y][k]=v===''?null:+v;save()}
 document.getElementById('dashYear').addEventListener('change',render);
-document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.panel').forEach(x=>x.classList.toggle('active',x.id===b.dataset.tab));window.scrollTo(0,0)}));
+function openTab(tab){document.querySelectorAll('.panel').forEach(x=>x.classList.toggle('active',x.id===tab));document.querySelectorAll('.tabs button[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));document.getElementById('moreMenu').classList.add('hidden');const mainTab=['dashboard','read','tbr','current'].includes(tab);document.getElementById('moreBtn').classList.toggle('active',!mainTab);window.scrollTo(0,0)}
+document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>openTab(b.dataset.tab)));
+document.getElementById('moreBtn').addEventListener('click',()=>document.getElementById('moreMenu').classList.toggle('hidden'));
+document.addEventListener('click',e=>{if(!e.target.closest('#moreMenu')&&!e.target.closest('#moreBtn'))document.getElementById('moreMenu').classList.add('hidden')});
 function backup(){const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='mijn-leesapp-backup.json';a.click();URL.revokeObjectURL(a.href)}
 document.getElementById('restoreFile').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;try{const data=JSON.parse(await file.text());if(!confirm('De huidige appgegevens vervangen door deze back-up?'))return;db={...fresh,...data};save();alert('Back-up teruggezet.')}catch(err){alert('Dit back-upbestand kan niet gelezen worden.')}e.target.value=''});
 function wipe(){if(confirm('Ben je zeker? Maak eerst eventueel een back-up.')){db=structuredClone(fresh);save()}}
