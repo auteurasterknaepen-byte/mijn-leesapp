@@ -1,0 +1,27 @@
+MIJN LEESAPP — iPhone offline webapp
+
+INHOUD
+- index.html: de leesapp
+- manifest.webmanifest: instellingen voor installeren op beginscherm
+- sw.js: cache voor offline gebruik
+- icon-192.png en icon-512.png: app-iconen
+
+BELANGRIJK
+Deze map moet eerst op een HTTPS-webadres worden geplaatst. Een service worker (nodig voor offline gebruik en installeren als webapp) werkt niet betrouwbaar vanuit een los lokaal HTML-bestand.
+Zodra de app op een HTTPS-adres staat:
+1. Open de link in Safari op je iPhone.
+2. Laat de pagina volledig laden terwijl je internet hebt.
+3. Tik op de Deel-knop.
+4. Kies 'Zet op beginscherm' en bevestig.
+5. Open de app vanaf het beginscherm terwijl je nog internet hebt. Daarna worden de appbestanden gecachet en kan de app offline openen.
+
+GEGEVENS
+Boeken en doelen worden lokaal in Safari op je iPhone bewaard (localStorage). Ze worden niet automatisch gesynchroniseerd met Excel of andere toestellen.
+Gebruik in de app regelmatig 'Back-up downloaden'. Bewaar het JSON-bestand in Bestanden/iCloud Drive.
+Met 'Back-up terugzetten' kun je die gegevens later terugplaatsen.
+
+STARTGEGEVENS
+- 2024: 24 als doel, 42 gelezen
+- 2025: 50 als doel, 40 gelezen
+- 2027: leesdoel 36
+Historische totalen tot en met 2026 zijn handmatig invulbaar. Vanaf 2027 telt de app boeken automatisch op basis van de einddatum.

@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#eee8f7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Mijn Leesapp">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Mijn Leesapp</title>
+<style>
+:root{--lav:#eee8f7;--lav2:#d9cbed;--mint:#e4f2eb;--pink:#f8e5eb;--blue:#e6eff9;--peach:#faeadf;--yellow:#faf2d8;--ink:#3e3945;--muted:#77717d;--white:#fff;--line:#e9e4ed}
+*{box-sizing:border-box}body{margin:0;background:#faf9fc;color:var(--ink);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding-bottom:86px}
+header{padding:22px 18px 16px;background:linear-gradient(135deg,var(--lav),#f8edf1);border-radius:0 0 24px 24px}
+h1{font-size:25px;margin:0 0 4px}header p{margin:0;color:var(--muted);font-size:13px}
+main{padding:16px;max-width:720px;margin:auto}.tabs{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;overflow-x:auto;padding:7px 4px calc(7px + env(safe-area-inset-bottom));z-index:5}
+.tabs button{flex:1;min-width:64px;border:0;background:none;color:var(--muted);font-size:10px;padding:5px 2px}.tabs button span{display:block;font-size:19px;margin-bottom:2px}.tabs button.active{color:#765c9a;font-weight:700}
+.panel{display:none}.panel.active{display:block}.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px;margin:0 0 12px;box-shadow:0 3px 12px #40305008}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.stat{border-radius:15px;padding:13px}.stat b{display:block;font-size:25px;margin-top:4px}.stat small{color:var(--muted)}
+.stat.lav{background:var(--lav)}.stat.mint{background:var(--mint)}.stat.pink{background:var(--pink)}.stat.blue{background:var(--blue)}
+h2{font-size:19px;margin:8px 0 13px}h3{font-size:15px;margin:0 0 10px}
+button.primary,.action{background:#8068a0;color:white;border:0;border-radius:12px;padding:11px 14px;font-weight:650}
+button.secondary{background:var(--lav);color:var(--ink);border:0;border-radius:12px;padding:10px 12px}
+button.danger{background:#fae7e7;color:#8d3535;border:0;border-radius:10px;padding:8px 10px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+label{display:block;font-size:12px;color:var(--muted);margin:10px 0 4px}input,select,textarea{width:100%;border:1px solid #ded8e5;border-radius:10px;padding:11px;background:#fff;color:var(--ink);font:inherit}textarea{min-height:70px}
+form .twocol{display:grid;grid-template-columns:1fr 1fr;gap:9px}.book{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.book strong{display:block}.muted{color:var(--muted);font-size:12px}.pill{display:inline-block;background:var(--lav);padding:4px 8px;border-radius:20px;font-size:11px;margin:4px 3px 0 0}
+.progress{height:9px;background:#eee9f2;border-radius:20px;overflow:hidden;margin:8px 0}.progress i{display:block;height:100%;background:#9a82b6;border-radius:20px}
+.empty{color:var(--muted);text-align:center;padding:22px 8px}.rowline{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid var(--line)}.rowline:last-child{border:0}
+.note{font-size:12px;color:var(--muted);line-height:1.45}.hidden{display:none!important}
+@media(min-width:600px){.grid{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<header><h1>📚 Mijn Leesapp</h1><p>Jouw boeken, leesdoelen en leesplezier op één plek</p></header>
+<main>
+<section id="dashboard" class="panel active">
+<h2>Mijn dashboard</h2>
+<div class="card"><label for="dashYear">Geselecteerd leesjaar</label><select id="dashYear"></select></div>
+<div class="grid">
+<div class="stat lav"><small>Boeken gelezen</small><b id="statBooks">0</b></div>
+<div class="stat mint"><small>Pagina's gelezen</small><b id="statPages">0</b></div>
+<div class="stat pink"><small>Leesdoel</small><b id="statGoal">—</b></div>
+<div class="stat blue"><small>Voortgang</small><b id="statProgress">—</b></div>
+</div>
+<div class="card" style="margin-top:12px"><h3>Mijn leesdoel</h3><div class="progress"><i id="goalBar" style="width:0%"></i></div><div id="goalText" class="muted"></div></div>
+<div class="card"><h3>Per maand gelezen</h3><div id="months"></div></div>
+<div class="card"><h3>Momenteel aan het lezen</h3><div id="dashCurrent"></div></div>
+</section>
+<section id="read" class="panel">
+<h2>Gelezen boeken</h2><div class="card"><button class="primary" onclick="showForm('readForm')">＋ Boek toevoegen</button></div>
+<form id="readForm" class="card hidden"><h3>Nieuw gelezen boek</h3>
+<label>Titel *</label><input name="title" required>
+<div class="twocol"><div><label>Auteur</label><input name="author"></div><div><label>Genre</label><select name="genre"><option value="">Kies genre</option><option>Fantasy</option><option>Romantasy</option><option>Romance</option><option>Young Adult</option><option>New Adult</option><option>Historisch</option><option>Overig</option></select></div></div>
+<div class="twocol"><div><label>Boektype</label><select name="type"><option>Standalone</option><option>Serie</option></select></div><div><label>Serienaam</label><input name="series"></div></div>
+<div class="twocol"><div><label>Deel</label><input name="volume"></div><div><label>Formaat</label><select name="format"><option>Fysiek</option><option>E-book</option><option>Luisterboek</option></select></div></div>
+<div class="twocol"><div><label>Pagina's</label><input name="pages" type="number" min="0"></div><div><label>Beoordeling</label><select name="rating"><option value="">Geen</option><option>1</option><option>1.5</option><option>2</option><option>2.5</option><option>3</option><option>3.5</option><option>4</option><option>4.5</option><option>5</option></select></div></div>
+<div class="twocol"><div><label>Startdatum</label><input name="start" type="date"></div><div><label>Einddatum *</label><input name="end" type="date" required></div></div>
+<label>Notities</label><textarea name="notes"></textarea>
+<div class="actions"><button class="primary" type="submit">Opslaan</button><button class="secondary" type="button" onclick="hideForm('readForm')">Annuleren</button></div></form>
+<div id="readList"></div>
+</section>
+<section id="tbr" class="panel">
+<h2>Mijn TBR</h2><div class="card"><button class="primary" onclick="showForm('tbrForm')">＋ Boek op TBR zetten</button></div>
+<form id="tbrForm" class="card hidden"><h3>Boek toevoegen aan TBR</h3><label>Titel *</label><input name="title" required><label>Auteur</label><input name="author">
+<div class="twocol"><div><label>Genre</label><input name="genre"></div><div><label>Prioriteit</label><select name="priority"><option>Normaal</option><option>Hoog</option><option>Laag</option></select></div></div>
+<div class="twocol"><div><label>Formaat</label><select name="format"><option>Fysiek</option><option>E-book</option><option>Luisterboek</option></select></div><div><label>In bezit?</label><select name="owned"><option>Ja</option><option>Nee</option></select></div></div>
+<label>Serienaam / notities</label><textarea name="notes"></textarea><div class="actions"><button class="primary">Opslaan</button><button class="secondary" type="button" onclick="hideForm('tbrForm')">Annuleren</button></div></form>
+<div id="tbrList"></div></section>
+<section id="current" class="panel"><h2>Momenteel lezen</h2><div class="card"><button class="primary" onclick="showForm('currentForm')">＋ Huidig boek toevoegen</button></div>
+<form id="currentForm" class="card hidden"><h3>Nieuw huidig boek</h3><label>Titel *</label><input name="title" required><label>Auteur</label><input name="author"><div class="twocol"><div><label>Totaal pagina's</label><input name="pages" type="number" min="1"></div><div><label>Huidige pagina</label><input name="page" type="number" min="0"></div></div><label>Startdatum</label><input name="start" type="date"><label>Notities</label><textarea name="notes"></textarea><div class="actions"><button class="primary">Opslaan</button><button class="secondary" type="button" onclick="hideForm('currentForm')">Annuleren</button></div></form><div id="currentList"></div></section>
+<section id="series" class="panel"><h2>Mijn series</h2><div class="card"><button class="primary" onclick="showForm('seriesForm')">＋ Serie toevoegen</button></div><form id="seriesForm" class="card hidden"><label>Serienaam *</label><input name="title" required><label>Auteur</label><input name="author"><div class="twocol"><div><label>Aantal delen</label><input name="count" type="number"></div><div><label>Delen in bezit</label><input name="owned" type="number"></div></div><label>Status</label><select name="status"><option>Bezig</option><option>Compleet</option><option>Moet ik nog starten</option><option>Gepauzeerd</option></select><label>Notities</label><textarea name="notes"></textarea><div class="actions"><button class="primary">Opslaan</button><button class="secondary" type="button" onclick="hideForm('seriesForm')">Annuleren</button></div></form><div id="seriesList"></div></section>
+<section id="years" class="panel"><h2>Jaaroverzicht</h2><p class="note">Vul je historische totalen en leesdoelen in. Vanaf 2027 telt de app je gelezen boeken automatisch.</p><div id="yearList"></div></section>
+<section id="settings" class="panel"><h2>Gegevens & back-up</h2><div class="card"><h3>Bewaar je leesadministratie</h3><p class="note">Je gegevens worden lokaal op deze iPhone bewaard. Maak regelmatig een back-up, zeker als je van toestel verandert of Safari-gegevens wist.</p><div class="actions"><button class="primary" onclick="backup()">Back-up downloaden</button><button class="secondary" onclick="document.getElementById('restoreFile').click()">Back-up terugzetten</button><input id="restoreFile" type="file" accept="application/json" class="hidden"></div></div><div class="card"><h3>Installeren op iPhone</h3><p class="note">Open de app-link in Safari, tik op de deelknop en kies 'Zet op beginscherm'. Open de app daarna minstens één keer met internet. Daarna kan ze offline gebruikt worden.</p></div><div class="card"><h3>Gegevens wissen</h3><p class="note">Dit verwijdert alle boeken en instellingen die in deze app op dit toestel zijn opgeslagen.</p><button class="danger" onclick="wipe()">Wis alle appgegevens</button></div></section>
+</main>
+<nav class="tabs">
+<button class="active" data-tab="dashboard"><span>⌂</span>Home</button><button data-tab="read"><span>📖</span>Gelezen</button><button data-tab="tbr"><span>♡</span>TBR</button><button data-tab="current"><span>▤</span>Lezen</button><button data-tab="series"><span>▣</span>Series</button><button data-tab="years"><span>▥</span>Jaren</button><button data-tab="settings"><span>⚙</span>Meer</button>
+</nav>
+<script>
+const KEY='mijnLeesapp_v1';
+const fresh={books:[],tbr:[],current:[],series:[],years:{}};
+let db=load();
+function load(){try{return {...fresh,...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch(e){return structuredClone(fresh)}}
+function save(){localStorage.setItem(KEY,JSON.stringify(db));render()}
+function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function showForm(id){document.getElementById(id).classList.remove('hidden')}
+function hideForm(id){document.getElementById(id).classList.add('hidden');document.getElementById(id).reset()}
+function val(f,n){return f.elements[n]?.value?.trim()||''}
+function add(formId,collection,mapper){const f=document.getElementById(formId);f.addEventListener('submit',e=>{e.preventDefault();db[collection].push(mapper(f));save();hideForm(formId)})}
+add('readForm','books',f=>({id:crypto.randomUUID(),title:val(f,'title'),author:val(f,'author'),genre:val(f,'genre'),type:val(f,'type'),series:val(f,'series'),volume:val(f,'volume'),format:val(f,'format'),pages:+val(f,'pages')||0,rating:val(f,'rating'),start:val(f,'start'),end:val(f,'end'),notes:val(f,'notes')}));
+add('tbrForm','tbr',f=>({id:crypto.randomUUID(),title:val(f,'title'),author:val(f,'author'),genre:val(f,'genre'),priority:val(f,'priority'),format:val(f,'format'),owned:val(f,'owned'),notes:val(f,'notes')}));
+add('currentForm','current',f=>({id:crypto.randomUUID(),title:val(f,'title'),author:val(f,'author'),pages:+val(f,'pages')||0,page:+val(f,'page')||0,start:val(f,'start'),notes:val(f,'notes')}));
+add('seriesForm','series',f=>({id:crypto.randomUUID(),title:val(f,'title'),author:val(f,'author'),count:+val(f,'count')||0,owned:+val(f,'owned')||0,status:val(f,'status'),notes:val(f,'notes')}));
+function del(type,id){if(confirm('Wil je dit item verwijderen?')){db[type]=db[type].filter(x=>x.id!==id);save()}}
+function editPage(id,v){let x=db.current.find(x=>x.id===id);let n=prompt('Welke pagina lees je nu?',x.page);if(n!==null){x.page=Math.max(0,Math.min(+n||0,x.pages||999999));save()}}
+function yearData(y){let stored=db.years[y]||{};let auto=db.books.filter(b=>b.end&&new Date(b.end).getFullYear()===y);let count=y>=2027?auto.length:(stored.total??(y===2024?42:y===2025?40:0));let goal=stored.goal??(y===2024?24:y===2025?50:y===2027?36:null);return {count,goal,auto,manual:y<2027}}
+function render(){
+ const years=Array.from({length:17},(_,i)=>2024+i),sel=document.getElementById('dashYear');let selected=+(sel.value||new Date().getFullYear());if(!sel.options.length){years.forEach(y=>sel.add(new Option(y,y)));sel.value=selected>=2024&&selected<=2040?selected:2027}
+ selected=+sel.value;const ydata=yearData(selected),pages=ydata.auto.reduce((a,b)=>a+(+b.pages||0),0),pct=ydata.goal?Math.round(ydata.count/ydata.goal*100):null;
+ document.getElementById('statBooks').textContent=ydata.count;document.getElementById('statPages').textContent=pages;document.getElementById('statGoal').textContent=ydata.goal??'—';document.getElementById('statProgress').textContent=pct===null?'—':pct+'%';document.getElementById('goalBar').style.width=Math.min(pct||0,100)+'%';document.getElementById('goalText').textContent=ydata.goal?`${ydata.count} van ${ydata.goal} boeken${ydata.count>=ydata.goal?' — doel behaald!':` · nog ${ydata.goal-ydata.count}`}`:'Vul je leesdoel in bij Jaaroverzicht.';
+ const months=['Januari','Februari','Maart','April','Mei','Juni','Juli','Augustus','September','Oktober','November','December'];document.getElementById('months').innerHTML=months.map((m,i)=>`<div class="rowline"><span>${m}</span><b>${ydata.auto.filter(b=>new Date(b.end).getMonth()===i).length}</b></div>`).join('');
+ document.getElementById('dashCurrent').innerHTML=db.current.length?db.current.map(b=>`<div class="rowline"><span>${esc(b.title)}<small class="muted"> · ${b.pages?Math.round((b.page||0)/b.pages*100):0}%</small></span><b>${b.page||0}/${b.pages||'?'}</b></div>`).join(''):'<div class="empty">Je leest momenteel geen boeken.</div>';
+ document.getElementById('readList').innerHTML=db.books.length?db.books.slice().reverse().map(b=>`<div class="card book"><div><strong>${esc(b.title)}</strong><div class="muted">${esc(b.author)} · ${esc(b.end||'')}</div><div>${b.genre?`<span class="pill">${esc(b.genre)}</span>`:''}${b.rating?`<span class="pill">★ ${esc(b.rating)}</span>`:''}${b.pages?`<span class="pill">${b.pages} pagina's</span>`:''}</div></div><button class="danger" onclick="del('books','${b.id}')">Verwijder</button></div>`).join(''):'<div class="card empty">Je hebt nog geen gelezen boeken toegevoegd.</div>';
+ document.getElementById('tbrList').innerHTML=db.tbr.length?db.tbr.map(b=>`<div class="card book"><div><strong>${esc(b.title)}</strong><div class="muted">${esc(b.author)} · ${esc(b.priority)} · ${esc(b.owned)}</div></div><button class="danger" onclick="del('tbr','${b.id}')">Verwijder</button></div>`).join(''):'<div class="card empty">Je TBR is nog leeg.</div>';
+ document.getElementById('currentList').innerHTML=db.current.length?db.current.map(b=>`<div class="card"><div class="book"><div><strong>${esc(b.title)}</strong><div class="muted">${esc(b.author)}</div></div><button class="danger" onclick="del('current','${b.id}')">Verwijder</button></div><div class="progress"><i style="width:${b.pages?Math.min(100,(b.page||0)/b.pages*100):0}%"></i></div><div class="muted">${b.page||0} / ${b.pages||'?'} pagina's</div><button class="secondary" style="margin-top:9px" onclick="editPage('${b.id}')">Pagina aanpassen</button></div>`).join(''):'<div class="card empty">Voeg een boek toe dat je momenteel leest.</div>';
+ document.getElementById('seriesList').innerHTML=db.series.length?db.series.map(b=>`<div class="card book"><div><strong>${esc(b.title)}</strong><div class="muted">${esc(b.author)} · ${esc(b.status)} · ${b.owned||0}/${b.count||'?'} in bezit</div></div><button class="danger" onclick="del('series','${b.id}')">Verwijder</button></div>`).join(''):'<div class="card empty">Je series verschijnen hier.</div>';
+ document.getElementById('yearList').innerHTML=years.map(y=>{let d=yearData(y);return `<div class="card"><h3>${y}</h3><div class="twocol"><div><label>${d.manual?'Totaal gelezen':'Gelezen (automatisch)'}</label>${d.manual?`<input type="number" min="0" value="${d.count||''}" placeholder="Totaal boeken" onchange="setYear(${y},'total',this.value)">`:`<b>${d.count}</b>`}</div><div><label>Leesdoel</label><input type="number" min="1" value="${d.goal??''}" placeholder="Leesdoel" onchange="setYear(${y},'goal',this.value)"></div></div><div class="muted" style="margin-top:8px">${d.goal?`${Math.round(d.count/d.goal*100)}% van je doel · ${Math.max(d.goal-d.count,0)} te gaan`: 'Vul je leesdoel in'}</div></div>`}).join('');
+}
+function setYear(y,k,v){db.years[y]=db.years[y]||{};db.years[y][k]=v===''?null:+v;save()}
+document.getElementById('dashYear').addEventListener('change',render);
+document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.panel').forEach(x=>x.classList.toggle('active',x.id===b.dataset.tab));window.scrollTo(0,0)}));
+function backup(){const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='mijn-leesapp-backup.json';a.click();URL.revokeObjectURL(a.href)}
+document.getElementById('restoreFile').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;try{const data=JSON.parse(await file.text());if(!confirm('De huidige appgegevens vervangen door deze back-up?'))return;db={...fresh,...data};save();alert('Back-up teruggezet.')}catch(err){alert('Dit back-upbestand kan niet gelezen worden.')}e.target.value=''});
+function wipe(){if(confirm('Ben je zeker? Maak eerst eventueel een back-up.')){db=structuredClone(fresh);save()}}
+render();
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+</script>
+</body></html>
